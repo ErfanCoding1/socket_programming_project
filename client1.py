@@ -12,27 +12,28 @@ def receive_messages(client_socket):
         except:
             break
 
+
 def main():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect(("127.0.0.1", 5555))
-    
   
     thread = threading.Thread(target=receive_messages, args=(client,))
     thread.start()
     
     while True:
-        command = input("Enter command (request_data, show_data , request_ids , disconnect): ")
+        command = input("Enter command (request_ids:[], show_data, disconnect): ")
         
         if command == "disconnect":
             print("Disconnecting from server.")
+            client.send(command.encode("utf-8"))
             break
-        elif command not in ["request_data", "request_ids","show_data"]:
+        elif command.startswith("request_ids:") or command == "show_data":
+            client.send(command.encode("utf-8"))
+        else:
             print("Please enter a valid option.")
-            continue
-        
-        client.send(command.encode("utf-8"))
         
     client.close()
+
 
 if __name__ == "__main__":
     main()
